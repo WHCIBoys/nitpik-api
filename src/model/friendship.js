@@ -1,10 +1,11 @@
-import db from './db';
-import Sequelize from './sequelize';
+import Sequelize from 'sequelize';
+import db from '../db';
 import User from './user';
 
 const Friendship = db.define('friendship', {
   id: {
     type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV1,
     primaryKey: true,
   },
 });

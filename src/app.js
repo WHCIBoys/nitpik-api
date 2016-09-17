@@ -2,30 +2,40 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import createRouter from 'koa-router';
 import send from 'koa-send';
-import axios from 'axios';
+import jsonwebtoken from 'jsonwebtoken';
 
-import {
-  APP_ID,
-  APP_SECRET,
-  REDIRECT_URI,
-} from './constant/secret';
+import User from './model/user';
+import * as Facebook from './util/facebook';
+
+import * as S from './constant/secret';
+
+import api from './api/index';
+const router = createRouter();
 
 const app = new Koa();
-const router = createRouter();
 
 router.get('/oauth2/facebook', async (context ) => {
   context.redirect(
-    `https://www.facebook.com/dialog/oauth?client_id=${APP_ID}&redirect_uri=${REDIRECT_URI}`
+    `https://www.facebook.com/dialog/oauth?client_id=${S.APP_ID}&redirect_uri=${S.REDIRECT_URI}`
   );
 });
 
-router.get('/oauth2/facebook/callback', async (context ) => {
-  const { code } = context.query;
-  const response = await axios.get(
-    `https://graph.facebook.com/v2.3/oauth/access_token?client_id=${APP_ID}` +
-    `&redirect_uri=${REDIRECT_URI}&client_secret=${APP_SECRET}&code=${code}`
-  );
-  context.body = response.data;
+router.get('/oauth2/facebook/callback', async (context) => {
+  const { query } = context;
+  try {
+    const { data: { access_token: accessToken } } = await Facebook.fetchAccessToken(query.code);
+    const { data: facebookUser } = await Facebook.fetchUser(['id', 'name'], accessToken);
+    const { id: facebookId, name } = facebookUser;
+
+    const [user] = await User.findOrCreate({ where: { facebookId }, defaults: { name } });
+    const jwt = jsonwebtoken.sign({}, S.JWT_SECRET, { subject: user.id, expiresIn: '5 days' });
+
+    context.body = { jwt, access_token: accessToken };
+    context.response.status = 200;
+  } catch (error) {
+    context.body = error.response.data;
+    context.response.status = error.response.status;
+  }
 });
 
 router.get('/', async (context) => {
@@ -34,6 +44,8 @@ router.get('/', async (context) => {
 
 app
   .use(bodyParser())
+  .use(api.routes())
+  .use(api.allowedMethods())
   .use(router.routes())
   .use(router.allowedMethods());
 
