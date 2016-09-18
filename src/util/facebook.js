@@ -16,3 +16,9 @@ export async function fetchAccessToken(redirectUri, code) {
     `&redirect_uri=${redirectUri}&client_secret=${APP_SECRET}&code=${code}`
   );
 }
+
+export async function fetchFriends(accessToken) {
+  return await axios.get(
+    `https://graph.facebook.com/me/friends?access_token=${accessToken}`
+  );
+}
