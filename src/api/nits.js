@@ -11,7 +11,12 @@ export async function get(context) {
       where: { authorId, userId },
     });
 
-    context.body = nits;
+    context.body = await Promise.all(nits.map(async (nit) => {
+      return Object.assign(nit.toJSON(), {
+        user: (await nit.getUser()).toJSON(),
+        author: (await nit.getAuthor()).toJSON(),
+      });
+    }));
     context.response.status = 200;
   } catch (error) {
     const boom = Boom.badImplementation('Failed to fetch nits');
