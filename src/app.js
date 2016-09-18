@@ -38,6 +38,8 @@ router.get(`/${RELATIVE_REDIRECT_URI}`, async (context) => {
 
     const { data: { data: friends } } = await Facebook.fetchFriends(accessToken);
 
+    console.log({ facebookFriends: friends });
+
     const friendships = friends.map(async (friend) => {
       const friendUser = await User.findOne({ where: { facebookId: friend.id } });
       return Friendship.findOrCreate({
@@ -45,7 +47,6 @@ router.get(`/${RELATIVE_REDIRECT_URI}`, async (context) => {
           userId: user.id,
           friendId: friendUser.id,
         },
-        defaults: {},
       });
     });
 
