@@ -6,10 +6,14 @@ export async function get(context) {
   await Nit.sync();
   const { query: { authorId, userId } } = context;
 
+  console.log({ authorId, userId });
+
   try {
     const nits = await Nit.findAll({
       where: { authorId, userId },
     });
+
+    console.log({ nits });
 
     context.body = await Promise.all(nits.map(async (nit) => {
       return Object.assign(nit.toJSON(), {
