@@ -19,6 +19,7 @@ export async function get(context) {
     }));
     context.response.status = 200;
   } catch (error) {
+    console.error(error);
     const boom = Boom.badImplementation('Failed to fetch nits');
     decorateWithBoom(boom, context);
   }
@@ -27,9 +28,11 @@ export async function get(context) {
 export async function post(context) {
   await Nit.sync();
   try {
-    const nit = Nit.build(context.body);
+    const nit = Nit.build(context.request.body);
     try {
       await nit.save();
+      context.body = nit.toJSON();
+      context.response.status = 201;
     } catch (error) {
       const boom = Boom.badImplementation('Failed to save Nit to database.', { nit, error });
       decorateWithBoom(boom, context);
