@@ -10,7 +10,7 @@ export async function get(context) {
 
   try {
     const nits = await Nit.findAll({
-      where: { authorId, userId },
+      where: { userId },
     });
 
     console.log({ nits });
