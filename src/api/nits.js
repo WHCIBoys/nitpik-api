@@ -6,14 +6,13 @@ export async function get(context) {
   await Nit.sync();
   const { query: { authorId, userId } } = context;
 
-  console.log({ authorId, userId });
-
   try {
     const nits = await Nit.findAll({
-      where: { userId },
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+      where: filterObject(Boolean, { userId, authorId }),
     });
-
-    console.log({ nits });
 
     context.body = await Promise.all(nits.map(async (nit) => {
       return Object.assign(nit.toJSON(), {
@@ -27,6 +26,12 @@ export async function get(context) {
     const boom = Boom.badImplementation('Failed to fetch nits');
     decorateWithBoom(boom, context);
   }
+}
+
+function filterObject(fn, object) {
+  return Object.keys(object).reduce((obj, key) => {
+    return fn(object[key]) ? Object.assign(obj, { [key]: object[key] }) : obj;
+  }, {});
 }
 
 export async function post(context) {
