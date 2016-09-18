@@ -36,7 +36,7 @@ router.get(`/${RELATIVE_REDIRECT_URI}`, async (context) => {
     const [user] = await User.findOrCreate({ where: { facebookId }, defaults: { name } });
     const jwt = jsonwebtoken.sign({}, S.JWT_SECRET, { subject: user.id, expiresIn: '5 days' });
 
-    context.redirect(`${C.FRONT_END}/login/facebook?access_code=${accessToken}&jwt=${jwt}`);
+    context.redirect(`${C.FRONT_END}/login/facebook?access_token=${accessToken}&jwt=${jwt}`);
   } catch (error) {
     context.body = error.response.data;
     context.response.status = error.response.status;
