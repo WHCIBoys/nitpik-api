@@ -5,7 +5,6 @@ import { decorateWithBoom } from '../util/index';
 export async function get(context) {
   await User.sync();
   const { id } = context.params;
-
   try {
     context.body = await User.findOne({
       where: { id },
@@ -14,4 +13,8 @@ export async function get(context) {
     const boom = Boom.badImplementation(`Failed to fetch user with id ${id}.`, error);
     decorateWithBoom(boom, context);
   }
+}
+
+export async function getMe(context) {
+  context.body = context.user;
 }

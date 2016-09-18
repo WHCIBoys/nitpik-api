@@ -10,6 +10,7 @@ import db from '../db';
 const router = createRouter();
 
 router.get('/friendships', authenticate, sync(friendships.get));
+router.get('/users/me', authenticate, sync(users.getMe));
 router.get('/users/:id', authenticate, sync(users.get));
 router.get('/nits', authenticate, sync(nits.get));
 router.post('/nits', authenticate, sync(nits.post));
