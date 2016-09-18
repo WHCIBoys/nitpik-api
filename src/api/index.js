@@ -15,7 +15,7 @@ router.post('/users', authenticate, sync(users.post));
 router.get('/nits', authenticate, sync(nits.get));
 router.post('/nits', authenticate, sync(nits.post));
 router.put('/nits/:id', authenticate, sync(nits.put));
-router.post('/token-grant', authenticate, sync(TokenGrant.post));
+router.post('/token-grant', sync(TokenGrant.post));
 
 function sync(fn) {
   return async (...args) => {
