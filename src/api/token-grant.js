@@ -15,6 +15,8 @@ export async function post(context) {
 
     const { data: { data: friends } } = await Facebook.fetchFriends(query.access_token);
 
+    console.log(JSON.stringify({ friends }, null, 4));
+
     const friendships = friends.map(async (friend) => {
       const friendUser = await User.findOne({ where: { facebookId: friend.id } });
       return Friendship.findOrCreate({
