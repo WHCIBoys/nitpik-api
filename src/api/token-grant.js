@@ -13,7 +13,7 @@ export async function post(context) {
     const [user] = await User.findOrCreate({ where: { facebookId }, defaults: { name } });
     const jwt = jsonwebtoken.sign({}, S.JWT_SECRET, { subject: user.id, expiresIn: '5 days' });
 
-    context.body = jwt;
+    context.body = { jwtToken: jwt, userId: user.id };
     context.response.status = 201;
   } catch (error) {
     context.body = error.response.data;
